@@ -10,7 +10,7 @@ namespace SdoValidering
 {
     class Program
     {
-        const string _signingCertificateIdentifier = "CN=www.esignatur.dk";
+        const string _signingCertificateIdentifier = "cn=www.esignatur.dk";
 
         static void Main(string[] args)
         {
@@ -32,6 +32,11 @@ namespace SdoValidering
 
             var keyInfoData = signedXml.Signature.KeyInfo.OfType<KeyInfoX509Data>();
             var certificate = keyInfoData.First().Certificates[0] as X509Certificate2;
+            if (!certificate.SubjectName.Name.ToLower().Contains(_signingCertificateIdentifier))
+            {
+                Console.WriteLine("Not a esignatur.dk signing certificate");
+                Environment.Exit(4);
+            }
 
             // Only for the paranoid
             ValidateCertificateChain(signedXml.KeyInfo, certificate);
